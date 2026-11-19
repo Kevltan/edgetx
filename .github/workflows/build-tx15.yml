@@ -1,0 +1,48 @@
+name: Build TX15 firmware
+
+on:
+  workflow_dispatch:
+    inputs:
+      source_branch:
+        description: Branch to build
+        required: true
+        type: choice
+        options:
+          - main
+          - usb-resume-control-unlock
+        default: usb-resume-control-unlock
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build EdgeTX 2.12.5 for TX15
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/edgetx/edgetx-dev:2.12
+      volumes:
+        - ${{ github.workspace }}:/src
+    steps:
+      - name: Check out selected branch and submodules
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.source_branch }}
+          submodules: recursive
+
+      - name: Build TX15 firmware
+        env:
+          FLAVOR: tx15
+          CMAKE_BUILD_PARALLEL_LEVEL: 4
+        run: ./tools/build-gh.sh
+
+      - name: Upload TX15 firmware
+        uses: actions/upload-artifact@v4
+        with:
+          name: edgetx-2.12.5-tx15-${{ inputs.source_branch }}
+          path: |
+            *.uf2
+            *.bin
+            fw.json
+          if-no-files-found: error
+          retention-days: 14
