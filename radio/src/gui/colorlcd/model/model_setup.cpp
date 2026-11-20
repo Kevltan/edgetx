@@ -176,6 +176,19 @@ static SetupLineDef viewOptionsPageSetupLines[] = {
                 g_eeGeneral.modelTelemetryDisabled);
     }
   },
+#if defined(RADIO_TX15) || defined(RADIO_TX16SMK3)
+  {
+    STR_DEF(STR_EDGETX_ICON_AT_STARTUP),
+    [](Window* parent, coord_t x, coord_t y) {
+      new ToggleSwitch(parent, {x, y, 0, 0},
+                       [=]() { return !g_model.hideEdgeTxButtonAtStartup; },
+                       [=](uint8_t value) {
+                         g_model.hideEdgeTxButtonAtStartup = !value;
+                         SET_DIRTY();
+                       });
+    }
+  },
+#endif
 };
 
 struct CenterBeepsMatrix : public ButtonMatrix {
@@ -346,19 +359,6 @@ static SetupLineDef setupLines[] = {
                      }, false, STR_BITMAP);
     }
   },
-#if defined(RADIO_TX15) || defined(RADIO_TX16SMK3)
-  {
-    STR_DEF(STR_SHOW_EDGETX_MENU_BUTTON_AT_STARTUP),
-    [](Window* parent, coord_t x, coord_t y) {
-      new ToggleSwitch(parent, {x, y, 0, 0},
-                       [=]() { return !g_model.hideEdgeTxButtonAtStartup; },
-                       [=](uint8_t value) {
-                         g_model.hideEdgeTxButtonAtStartup = !value;
-                         SET_DIRTY();
-                       });
-    }
-  },
-#endif
 };
 
 void ModelSetupPage::build(Window * window)

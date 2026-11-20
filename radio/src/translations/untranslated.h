@@ -74,7 +74,7 @@ extern const char CHR_INPUT;
 #define TR_RX           "Rx"
 
 #define TR_UNKNOWN      "UNKNOWN"
-#define TR_SHOW_EDGETX_MENU_BUTTON_AT_STARTUP "Show EdgeTX menu button at startup"
+#define TR_EDGETX_ICON_AT_STARTUP "EdgeTX Icon at startup"
 #define TR_BVD          "BVD"
 
 #define CHAR_RIGHT     "\302\200"
