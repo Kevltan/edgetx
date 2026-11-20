@@ -815,7 +815,7 @@ PACK(struct ModelData {
   uint8_t potsWarnMode:2 ENUM(PotsWarnMode);
   NOBACKUP(uint8_t jitterFilter:2 ENUM(ModelOverridableEnable));
 #if defined(RADIO_TX15) || defined(RADIO_TX16SMK3)
-  uint8_t hideEdgeTxButtonAtStartup:1;
+  uint8_t widgetModeAtStartup:1;
 #else
   uint8_t spare1:1 SKIP;
 #endif
