@@ -1,0 +1,51 @@
+name: Build TX15 and TX16S MK3 startup widget firmware
+
+on:
+  push:
+    branches:
+      - tx15-tx16smk3-clean-2.12.5
+    paths:
+      - '.github/workflows/build-startup-widget.yml'
+      - 'radio/**'
+      - 'tools/build-gh.sh'
+      - 'cmake/**'
+      - '.gitmodules'
+      - 'CMakeLists.txt'
+
+jobs:
+  build:
+    name: Build ${{ matrix.target }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        target:
+          - tx15
+          - tx16smk3
+    container:
+      image: ghcr.io/edgetx/edgetx-dev:2.12
+      volumes:
+        - ${{ github.workspace }}:/src
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v7
+        with:
+          submodules: recursive
+
+      - name: Build firmware
+        env:
+          FLAVOR: ${{ matrix.target }}
+          CMAKE_BUILD_PARALLEL_LEVEL: 4
+        run: ./tools/build-gh.sh
+
+      - name: Upload firmware
+        uses: actions/upload-artifact@v7
+        with:
+          name: edgetx-2.12.5-${{ matrix.target }}
+          path: |
+            fw.json
+            LICENSE
+            *.bin
+            *.uf2
+          retention-days: 15
+          if-no-files-found: error

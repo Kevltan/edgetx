@@ -31,6 +31,7 @@
 #if defined(COLORLCD)
 #include "LvglWrapper.h"
 #include "view_main.h"
+#include "layer.h"
 #include "startup_shutdown.h"
 #include "theme_manager.h"
 #include "etx_lv_theme.h"
@@ -401,6 +402,31 @@ void guiMain(event_t evt)
   t0 = get_tmr10ms() - t0;
   if (t0 > maxLuaDuration) {
     maxLuaDuration = t0;
+  }
+#endif
+
+#if defined(RADIO_TX15) || defined(RADIO_TX16SMK3)
+  // Apply the selected model's startup screen preference once its main view
+  // is active. The event is queued only when the normal event queue is clear.
+  static char lastModelFilename[sizeof(g_eeGeneral.currModelFilename)] = {};
+  static bool modelSeen = false;
+  static bool widgetSelectPending = false;
+
+  auto viewMain = ViewMain::instance();
+  if (Layer::back() == viewMain) {
+    if (!modelSeen ||
+        memcmp(lastModelFilename, g_eeGeneral.currModelFilename,
+               sizeof(lastModelFilename)) != 0) {
+      memcpy(lastModelFilename, g_eeGeneral.currModelFilename,
+             sizeof(lastModelFilename));
+      modelSeen = true;
+      widgetSelectPending = g_model.hideEdgeTxButtonAtStartup;
+    }
+
+    if (widgetSelectPending && !isEvent()) {
+      pushEvent(EVT_KEY_LONG(KEY_ENTER));
+      widgetSelectPending = false;
+    }
   }
 #endif
 
