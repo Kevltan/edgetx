@@ -1581,7 +1581,7 @@ void edgeTxInit()
     LayoutFactory::loadCustomScreens();
 #if defined(RADIO_TX15) || defined(RADIO_TX16SMK3)
     // Match a physical long ENTER once the main widget screen is ready.
-    if (g_model.hideEdgeTxButtonAtStartup) {
+    if (g_model.widgetModeAtStartup) {
       pushEvent(EVT_KEY_LONG(KEY_ENTER));
     }
 #endif
