@@ -181,9 +181,9 @@ static SetupLineDef viewOptionsPageSetupLines[] = {
     STR_DEF(STR_EDGETX_ICON_AT_STARTUP),
     [](Window* parent, coord_t x, coord_t y) {
       new ToggleSwitch(parent, {x, y, 0, 0},
-                       [=]() { return !g_model.hideEdgeTxButtonAtStartup; },
+                       [=]() { return !g_model.widgetModeAtStartup; },
                        [=](uint8_t value) {
-                         g_model.hideEdgeTxButtonAtStartup = !value;
+                         g_model.widgetModeAtStartup = !value;
                          SET_DIRTY();
                        });
     }
