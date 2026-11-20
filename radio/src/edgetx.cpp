@@ -1579,6 +1579,12 @@ void edgeTxInit()
 
 #if defined(COLORLCD)
     LayoutFactory::loadCustomScreens();
+#if defined(RADIO_TX15) || defined(RADIO_TX16SMK3)
+    // Match a physical long ENTER once the main widget screen is ready.
+    if (g_model.hideEdgeTxButtonAtStartup) {
+      pushEvent(EVT_KEY_LONG(KEY_ENTER));
+    }
+#endif
 #endif
 
 #if defined(BLUETOOTH_PROBE)
