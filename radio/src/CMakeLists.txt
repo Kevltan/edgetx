@@ -738,11 +738,7 @@ else()
 endif()
 
 if(FIRMWARE_FORMAT_UF2)
-  if(VERSION_TAG)
-    set(UF2_VERSION_STRING "edgetx-${VERSION_TAG} (${GIT_STR})")
-  else()
-    set(UF2_VERSION_STRING "edgetx-${VERSION_PREFIX}${VERSION}${VERSION_SUFFIX} (${GIT_STR})")
-  endif()
+  set(UF2_VERSION_STRING "edgetx-${FLAVOUR}-2.12.5 KLT \"${CODENAME}\" (${GIT_STR})")
   
   add_custom_command(
     TARGET firmware POST_BUILD
