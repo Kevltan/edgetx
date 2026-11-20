@@ -420,7 +420,7 @@ void guiMain(event_t evt)
       memcpy(lastModelFilename, g_eeGeneral.currModelFilename,
              sizeof(lastModelFilename));
       modelSeen = true;
-      widgetSelectPending = g_model.hideEdgeTxButtonAtStartup;
+      widgetSelectPending = g_model.widgetModeAtStartup;
     }
 
     if (widgetSelectPending && !isEvent()) {
