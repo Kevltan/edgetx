@@ -55,13 +55,7 @@
 
 #if defined(COLORLCD)
   const char fw_stamp[]     = "FW" TAB ": edgetx-" FLAVOUR;
-  #if defined(VERSION_TAG) // tagged release, possibly mfg build
-    const char vers_stamp[] = "VERS" TAB ": " WITH_FACTORY_RELEASE(VERSION_TAG) " \"" CODENAME "\"";
-  #elif defined(FACTORY_RELEASE) // mfg build of non-tagged release, show commit hash only
-    const char vers_stamp[]   = "VERS" TAB ": Factory firmware (" GIT_STR ")";
-  #else // any other build (e.g. self, cloud, PR, nightly) will have prefix/suffix
-    const char vers_stamp[] = "VERS" TAB ": " VERSION_PREFIX VERSION VERSION_SUFFIX " (" GIT_STR ")";
-  #endif
+  const char vers_stamp[]   = "VERS" TAB ": \"Queen Anne's Revenge\" 2.12.5 KLT (" GIT_STR ")";
   const char date_stamp[]   = "DATE" TAB ": " DATE;
   const char time_stamp[]   = "TIME" TAB ": " TIME;
 #else // B&W / !COLOR_LCD
@@ -80,13 +74,8 @@
  */
 #if defined(STM32) && !defined(SIMU)
   #if defined(COLORLCD)
-    #if defined(VERSION_TAG)
-__SECTION_USED(".fwversiondata")   const char firmware_version[] = "edgetx-" FLAVOUR "-" WITH_FACTORY_RELEASE(VERSION_TAG) " (" GIT_STR ")";
-__SECTION_USED(".bootversiondata") const char boot_version[] =     "edgetx-" FLAVOUR "-" WITH_FACTORY_RELEASE(VERSION_TAG) " (" GIT_STR ")";
-    #else
-__SECTION_USED(".fwversiondata")   const char firmware_version[] = "edgetx-" FLAVOUR "-" VERSION_PREFIX WITH_FACTORY_RELEASE(VERSION) VERSION_SUFFIX " (" GIT_STR ")";
-__SECTION_USED(".bootversiondata") const char boot_version[] =     "edgetx-" FLAVOUR "-" VERSION_PREFIX WITH_FACTORY_RELEASE(VERSION) VERSION_SUFFIX " (" GIT_STR ")";
-    #endif
+__SECTION_USED(".fwversiondata")   const char firmware_version[] = "edgetx-" FLAVOUR "-2.12.5 KLT \"" CODENAME "\" (" GIT_STR ")";
+__SECTION_USED(".bootversiondata") const char boot_version[] =     "edgetx-" FLAVOUR "-2.12.5 KLT \"" CODENAME "\" (" GIT_STR ")";
   #else // B&W / !COLOR_LCD
   /* 128x64 does not have enough real estate to display more than basic VERSION */
 __SECTION_USED(".fwversiondata")   const char firmware_version[] = "edgetx-" FLAVOUR "-" VERSION_PREFIX WITH_FACTORY_RELEASE(VERSION) " (" GIT_STR ")";
