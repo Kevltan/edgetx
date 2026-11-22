@@ -74,8 +74,8 @@ extern const char CHR_INPUT;
 #define TR_RX           "Rx"
 
 #define TR_UNKNOWN      "UNKNOWN"
-#define TR_EDGETX_ICON_AT_STARTUP "Widget Focus at Startup"
-#define TR_STARTUP_OPTIONS "Startup Options"
+#define TR_EDGETX_ICON_AT_STARTUP "Widget Focus at Start-up"
+#define TR_STARTUP_OPTIONS "Start-up Options"
 #define TR_BVD          "BVD"
 
 #define CHAR_RIGHT     "\302\200"
