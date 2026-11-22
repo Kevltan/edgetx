@@ -330,7 +330,7 @@ SwitchConfig switchGetMaxType(uint8_t idx)
   }
 }
 
-static uint64_t checkSwitchPosition(uint8_t idx, bool startup)
+static uint64_t checkSwitchPosition(uint8_t idx, bool startup, bool playSounds)
 {
   uint64_t result = 0;
   uint32_t index = idx * 3;
@@ -367,19 +367,19 @@ static uint64_t checkSwitchPosition(uint8_t idx, bool startup)
     break;
   }
 
-  if (!(switchesPos & result)) {
+  if (playSounds && !(switchesPos & result)) {
     PLAY_SWITCH_MOVED(index);
   }
 
   return result;
 }
 
-void getSwitchesPosition(bool startup)
+void getSwitchesPosition(bool startup, bool playSounds)
 {
   uint64_t newPos = 0;
   for (unsigned i = 0; i < switchGetMaxAllSwitches(); i++) {
     if (!SWITCH_EXISTS(i)) continue;
-    newPos |= checkSwitchPosition(i, startup);
+    newPos |= checkSwitchPosition(i, startup, playSounds);
   }
   
   switchesPos = newPos;
