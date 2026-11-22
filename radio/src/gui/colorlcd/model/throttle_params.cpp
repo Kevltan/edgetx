@@ -95,6 +95,18 @@ static SetupLineDef setupLines[] = {
       if (g_model.idleTrimStepMode == IDLE_TRIM_STEP_CUSTOM)
         normalizeCustomStep();
 
+      static const char* const values[] = {"Fine", "Medium", "Coarse", "Custom"};
+      auto stepType = new Choice(
+          parent, {x, y, 0, 0}, values, 0, 3,
+          []() {
+            switch (g_model.idleTrimStepMode) {
+              case IDLE_TRIM_STEP_FINE: return 0;
+              case IDLE_TRIM_STEP_MEDIUM: return 1;
+              case IDLE_TRIM_STEP_COARSE: return 2;
+              default: return 3;
+            }
+          });
+
       auto customStep = new Choice(
           parent, {x + 150, y, 0, 0}, customStepValues, 0, 7,
           []() {
@@ -112,17 +124,7 @@ static SetupLineDef setupLines[] = {
       if (g_model.idleTrimStepMode != IDLE_TRIM_STEP_CUSTOM)
         customStep->hide();
 
-      static const char* const values[] = {"Fine", "Medium", "Coarse", "Custom"};
-      new Choice(
-          parent, {x, y, 0, 0}, values, 0, 3,
-          []() {
-            switch (g_model.idleTrimStepMode) {
-              case IDLE_TRIM_STEP_FINE: return 0;
-              case IDLE_TRIM_STEP_MEDIUM: return 1;
-              case IDLE_TRIM_STEP_COARSE: return 2;
-              default: return 3;
-            }
-          },
+      stepType->setSetValueHandler(
           [customStep, normalizeCustomStep](int value) {
             switch (value) {
               case 0: g_model.idleTrimStepMode = IDLE_TRIM_STEP_FINE; break;
