@@ -9,8 +9,7 @@ on:
         type: choice
         options:
           - main
-          - usb-resume-control-unlock
-        default: usb-resume-control-unlock
+        default: main
 
 permissions:
   contents: read
