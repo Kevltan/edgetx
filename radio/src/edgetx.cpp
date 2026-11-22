@@ -994,7 +994,7 @@ void checkTrims()
           v = 8;
           break;
         case IDLE_TRIM_STEP_CUSTOM:
-          v = limit<int16_t>(1, g_model.idleTrimCustomStep ? g_model.idleTrimCustomStep : 4, 32);
+          v = limit<int16_t>(1, g_model.idleTrimCustomStep ? g_model.idleTrimCustomStep : 4, 256);
           break;
         case IDLE_TRIM_STEP_MEDIUM:
         default:
