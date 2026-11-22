@@ -520,6 +520,40 @@ void evalFunctions(CustomFunctionData * functions, CustomFunctionsContext & func
   functionsContext.activeFunctions  = newActiveFunctions;
 }
 
+#if defined(AUDIO)
+// Evaluate only the radio volume Global Function before startup audio.
+// The normal mixer evaluation also runs unrelated Global Functions, which
+// must not be triggered before startup checks have completed.
+void evalGlobalVolume()
+{
+  if (!radioGFEnabled())
+    return;
+
+  for (uint8_t i = 0; i < MAX_SPECIAL_FUNCTIONS; i++) {
+    CustomFunctionData * cfn = &g_eeGeneral.customFn[i];
+    swsrc_t swtch = CFN_SWITCH(cfn);
+
+    if (swtch && CFN_FUNC(cfn) == FUNC_VOLUME &&
+        CFN_ACTIVE(cfn) != 0 && getSwitch(swtch)) {
+      int32_t shifted = 1024 + getValue(CFN_PARAM(cfn));
+      int32_t v;
+
+      if (shifted < VOLUME_SOURCE_DEADZONE) {
+        v = 0;
+      } else {
+        v = 1 + ((shifted - VOLUME_SOURCE_DEADZONE) *
+                 (VOLUME_LEVEL_MAX - 1)) /
+                    (2048 - VOLUME_SOURCE_DEADZONE);
+        if (v > VOLUME_LEVEL_MAX)
+          v = VOLUME_LEVEL_MAX;
+      }
+
+      requiredSpeakerVolume = (int16_t)v;
+    }
+  }
+}
+#endif
+
 const char* funcGetLabel(uint8_t func)
 {
   switch(func) {
