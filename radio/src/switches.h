@@ -51,7 +51,7 @@ void logicalSwitchesTimerTick();
 
 bool isSwitchWarningRequired(uint16_t &bad_pots);
 
-void getSwitchesPosition(bool startup);
+void getSwitchesPosition(bool startup, bool playSounds = true);
 
 uint8_t getSwitchCount();
 
