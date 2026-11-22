@@ -65,7 +65,7 @@ static SetupLineDef setupLines[] = {
     STR_DEF(STR_TRIMINC),
     [](Window* parent, coord_t x, coord_t y) {
       auto customStep = new NumberEdit(
-          parent, {x + 150, y, 0, 0}, 1, 32,
+          parent, {x + 150, y, 0, 0}, 1, 256,
           []() { return g_model.idleTrimCustomStep ? g_model.idleTrimCustomStep : 4; },
           [](int value) {
             g_model.idleTrimCustomStep = value;
