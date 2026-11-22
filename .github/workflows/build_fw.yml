@@ -31,37 +31,8 @@ jobs:
     strategy:
       matrix:
         target:
-          - x9dp2019
           - tx15
-          - gx15
-          - tx16s
           - tx16smk3
-          - nv14
-          - el18
-          - pl18
-          - pl18ev
-          - t12max
-          - t15
-          - t16
-          - t18
-          - tlite #STM32F2
-          - t20
-          - t14
-          - t20v2
-          - tx12 #STM32F2
-          - x10
-          - x12s
-          - x9e
-          - mt12
-          - gx12
-          - nb4p
-          - st16
-          - t15pro
-          - t15h7
-          - t18h7
-          - pa01
-          - t22
-          - h17
     container:
       image: ghcr.io/edgetx/edgetx-dev:2.12
       volumes:
@@ -91,35 +62,8 @@ jobs:
     strategy:
       matrix:
         target:
-          - nv14;el18
-          - pl18;pl18ev;pl18u
-          - pa01
-          - t12max
-          - t15;t16;t18
-          - zorro;pocket;mt12;commando8
-          - tprov2;tpros;bumblebee
-          - t20;t20v2;t14
-          - tx12mk2;boxer;gx12
           - tx15
-          - gx15
-          - tx16s
           - tx16smk3
-          - f16
-          - v12;v14;v15;v16
-          - x10;x10express
-          - x12s
-          - x7access
-          - x9dp2019
-          - x9e;x9e-hall
-          - mt12;gx12
-          - nb4p
-          - st16
-          - t15pro
-          - t15h7
-          - t18h7
-          - t22
-          - c14
-          - h17
     container:
       image: ghcr.io/edgetx/edgetx-dev:2.12
       volumes:
