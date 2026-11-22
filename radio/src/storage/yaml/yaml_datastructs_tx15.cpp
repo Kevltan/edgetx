@@ -954,7 +954,7 @@ static const struct YamlNode struct_ModelData[] = {
   YAML_UNSIGNED( "idleTrimStepMode", 2 ),
   YAML_PADDING( 2 ),
   YAML_SIGNED( "customThrottleWarningPosition", 8 ),
-  YAML_UNSIGNED( "idleTrimCustomStep", 8 ),
+  YAML_UNSIGNED( "idleTrimCustomStep", 16 ),
   YAML_UNSIGNED( "beepANACenter", 16 ),
   YAML_ARRAY("mixData", 160, 64, struct_MixData, NULL),
   YAML_ARRAY("limitData", 104, 32, struct_LimitData, NULL),
