@@ -24,7 +24,6 @@
 #include "sourcechoice.h"
 #include "switchchoice.h"
 #include "choice.h"
-#include "numberedit.h"
 
 #define SET_DIRTY()     storageDirty(EE_MODEL)
 
@@ -64,14 +63,52 @@ static SetupLineDef setupLines[] = {
     // Idle-only throttle trim increment
     STR_DEF(STR_TRIMINC),
     [](Window* parent, coord_t x, coord_t y) {
-      auto customStep = new NumberEdit(
-          parent, {x + 150, y, 0, 0}, 1, 256,
-          []() { return g_model.idleTrimCustomStep ? g_model.idleTrimCustomStep : 4; },
+      static constexpr uint16_t customSteps[] = {1, 4, 8, 16, 32, 64, 128, 256};
+      static const char* const customStepValues[] = {
+          "1", "4", "8", "16", "32", "64", "128", "256"};
+
+      auto normalizeCustomStep = []() {
+        uint16_t currentStep = g_model.idleTrimCustomStep;
+        if (currentStep == 0)
+          currentStep = 4;
+
+        int closestIndex = 1;
+        uint16_t closestDistance = currentStep > customSteps[1]
+                                       ? currentStep - customSteps[1]
+                                       : customSteps[1] - currentStep;
+        for (int i = 0; i < DIM(customSteps); i++) {
+          uint16_t distance = currentStep > customSteps[i]
+                                  ? currentStep - customSteps[i]
+                                  : customSteps[i] - currentStep;
+          if (distance < closestDistance) {
+            closestDistance = distance;
+            closestIndex = i;
+          }
+        }
+
+        if (g_model.idleTrimCustomStep != customSteps[closestIndex]) {
+          g_model.idleTrimCustomStep = customSteps[closestIndex];
+          SET_DIRTY();
+        }
+      };
+
+      if (g_model.idleTrimStepMode == IDLE_TRIM_STEP_CUSTOM)
+        normalizeCustomStep();
+
+      auto customStep = new Choice(
+          parent, {x + 150, y, 0, 0}, customStepValues, 0, 7,
+          []() {
+            for (int i = 0; i < DIM(customSteps); i++) {
+              if (g_model.idleTrimCustomStep == customSteps[i])
+                return i;
+            }
+            return 1;
+          },
           [](int value) {
-            g_model.idleTrimCustomStep = value;
+            value = limit<int>(0, value, DIM(customSteps) - 1);
+            g_model.idleTrimCustomStep = customSteps[value];
             SET_DIRTY();
           });
-      customStep->setSuffix(" steps");
       if (g_model.idleTrimStepMode != IDLE_TRIM_STEP_CUSTOM)
         customStep->hide();
 
@@ -86,15 +123,14 @@ static SetupLineDef setupLines[] = {
               default: return 3;
             }
           },
-          [customStep](int value) {
+          [customStep, normalizeCustomStep](int value) {
             switch (value) {
               case 0: g_model.idleTrimStepMode = IDLE_TRIM_STEP_FINE; break;
               case 1: g_model.idleTrimStepMode = IDLE_TRIM_STEP_MEDIUM; break;
               case 2: g_model.idleTrimStepMode = IDLE_TRIM_STEP_COARSE; break;
               default:
                 g_model.idleTrimStepMode = IDLE_TRIM_STEP_CUSTOM;
-                if (g_model.idleTrimCustomStep == 0)
-                  g_model.idleTrimCustomStep = 4;
+                normalizeCustomStep();
                 break;
             }
             if (g_model.idleTrimStepMode == IDLE_TRIM_STEP_CUSTOM)
