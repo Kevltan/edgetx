@@ -5,6 +5,7 @@ on:
     branches:
       - 'main'
       - '[0-9]+.[0-9]+'
+      - 'idle-only-throttle-trim-steps-test'
     tags:
       - v*
     paths: &trigger-paths
