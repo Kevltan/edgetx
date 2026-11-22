@@ -1560,6 +1560,15 @@ void edgeTxInit()
 #if defined(AUDIO)
   currentSpeakerVolume = requiredSpeakerVolume =
       g_eeGeneral.speakerVolume + VOLUME_LEVEL_DEF;
+
+  // Read calibrated controls and physical switch positions before startup
+  // audio, then apply only the volume Global Function.
+  getADC();
+  evalInputs(e_perout_mode_notrainer);
+  getSwitchesPosition(true, false);
+  evalGlobalVolume();
+
+  currentSpeakerVolume = requiredSpeakerVolume;
 #if !defined(SOFTWARE_VOLUME)
   audioSetVolume(currentSpeakerVolume);
 #endif
