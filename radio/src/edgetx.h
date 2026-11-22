@@ -451,6 +451,9 @@ inline bool isFunctionActive(uint8_t func)
   return globalFunctionsContext.isFunctionActive(func) || modelFunctionsContext.isFunctionActive(func);
 }
 void evalFunctions(CustomFunctionData * functions, CustomFunctionsContext & functionsContext);
+#if defined(AUDIO)
+void evalGlobalVolume();
+#endif
 inline void customFunctionsReset()
 {
   globalFunctionsContext.reset();
