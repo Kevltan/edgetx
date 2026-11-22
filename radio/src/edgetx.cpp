@@ -984,7 +984,27 @@ void checkTrims()
 #endif
     int8_t trimInc = g_model.trimInc + 1;
     int16_t v = (trimInc==-1) ? min(32, abs(before)/4+1) : (1 << trimInc); // TODO flash saving if (trimInc < 0)
+#if defined(RADIO_TX15) || defined(RADIO_TX16SMK3)
+    if (thro) {
+      switch (g_model.idleTrimStepMode) {
+        case IDLE_TRIM_STEP_FINE:
+          v = 1;
+          break;
+        case IDLE_TRIM_STEP_COARSE:
+          v = 8;
+          break;
+        case IDLE_TRIM_STEP_CUSTOM:
+          v = limit<int16_t>(1, g_model.idleTrimCustomStep ? g_model.idleTrimCustomStep : 4, 32);
+          break;
+        case IDLE_TRIM_STEP_MEDIUM:
+        default:
+          v = 4;
+          break;
+      }
+    }
+#else
     if (thro) v = 4; // if throttle trim and trim throttle then step=4
+#endif
 #if defined(GVARS)
     if (TRIM_REUSED(idx)) v = tmode.mode == TRIM_MODE_3POS ? RESX : 1;
 #endif

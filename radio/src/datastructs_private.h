@@ -754,6 +754,15 @@ PACK(struct USBJoystickChData {
 #endif
 });
 
+#if defined(RADIO_TX15) || defined(RADIO_TX16SMK3)
+enum IdleTrimStepMode : uint8_t {
+  IDLE_TRIM_STEP_MEDIUM = 0,
+  IDLE_TRIM_STEP_FINE,
+  IDLE_TRIM_STEP_COARSE,
+  IDLE_TRIM_STEP_CUSTOM,
+};
+#endif
+
 PACK(struct ModelData {
   // Must match start of PartialModel
   CUST_ATTR(semver,nullptr,w_semver);
@@ -775,13 +784,19 @@ PACK(struct ModelData {
   uint8_t   disableTelemetryWarning:1;
   uint8_t   showInstanceIds:1;
   uint8_t   checklistInteractive:1;
-#if defined(USE_HATS_AS_KEYS)
+#if defined(RADIO_TX15) || defined(RADIO_TX16SMK3)
+  uint8_t idleTrimStepMode:2;
+  uint8_t spare3:2 SKIP;  // remaining padding
+#elif defined(USE_HATS_AS_KEYS)
   NOBACKUP(uint8_t hatsMode:2 ENUM(HatsMode));
   uint8_t   spare3:2 SKIP;  // padding to 8-bit aligment
 #else
   uint8_t   spare3:4 SKIP;  // padding to 8-bit aligment
 #endif
   int8_t    customThrottleWarningPosition;
+#if defined(RADIO_TX15) || defined(RADIO_TX16SMK3)
+  uint8_t idleTrimCustomStep;
+#endif
   BeepANACenter beepANACenter;
   MixData   mixData[MAX_MIXERS] NO_IDX;
   LimitData limitData[MAX_OUTPUT_CHANNELS];

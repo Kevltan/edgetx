@@ -23,6 +23,8 @@
 #include "edgetx.h"
 #include "sourcechoice.h"
 #include "switchchoice.h"
+#include "choice.h"
+#include "numberedit.h"
 
 #define SET_DIRTY()     storageDirty(EE_MODEL)
 
@@ -57,6 +59,53 @@ static SetupLineDef setupLines[] = {
       new ToggleSwitch(parent, {x, y, 0, 0}, GET_SET_DEFAULT(g_model.thrTrim));
     }
   },
+#if defined(RADIO_TX15) || defined(RADIO_TX16SMK3)
+  {
+    // Idle-only throttle trim increment
+    STR_DEF(STR_TRIMINC),
+    [](Window* parent, coord_t x, coord_t y) {
+      auto customStep = new NumberEdit(
+          parent, {x + 150, y, 0, 0}, 1, 32,
+          []() { return g_model.idleTrimCustomStep ? g_model.idleTrimCustomStep : 4; },
+          [](int value) {
+            g_model.idleTrimCustomStep = value;
+            SET_DIRTY();
+          });
+      customStep->setSuffix(" steps");
+      if (g_model.idleTrimStepMode != IDLE_TRIM_STEP_CUSTOM)
+        customStep->hide();
+
+      static const char* const values[] = {"Fine", "Medium", "Coarse", "Custom"};
+      new Choice(
+          parent, {x, y, 0, 0}, values, 0, 3,
+          []() {
+            switch (g_model.idleTrimStepMode) {
+              case IDLE_TRIM_STEP_FINE: return 0;
+              case IDLE_TRIM_STEP_MEDIUM: return 1;
+              case IDLE_TRIM_STEP_COARSE: return 2;
+              default: return 3;
+            }
+          },
+          [customStep](int value) {
+            switch (value) {
+              case 0: g_model.idleTrimStepMode = IDLE_TRIM_STEP_FINE; break;
+              case 1: g_model.idleTrimStepMode = IDLE_TRIM_STEP_MEDIUM; break;
+              case 2: g_model.idleTrimStepMode = IDLE_TRIM_STEP_COARSE; break;
+              default:
+                g_model.idleTrimStepMode = IDLE_TRIM_STEP_CUSTOM;
+                if (g_model.idleTrimCustomStep == 0)
+                  g_model.idleTrimCustomStep = 4;
+                break;
+            }
+            if (g_model.idleTrimStepMode == IDLE_TRIM_STEP_CUSTOM)
+              customStep->show();
+            else
+              customStep->hide();
+            SET_DIRTY();
+          });
+    }
+  },
+#endif
   {
     // Throttle trim source
     STR_DEF(STR_TTRIM_SW),

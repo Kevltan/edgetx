@@ -66,6 +66,8 @@ void ModelData::copy(const ModelData & src)
   disableThrottleWarning = src.disableThrottleWarning;
   enableCustomThrottleWarning = src.enableCustomThrottleWarning;
   customThrottleWarningPosition = src.customThrottleWarningPosition;
+  idleTrimStepMode = src.idleTrimStepMode;
+  idleTrimCustomStep = src.idleTrimCustomStep;
   jitterFilter = src.jitterFilter;
   beepANACenter = src.beepANACenter;
   extendedLimits = src.extendedLimits;
@@ -245,6 +247,8 @@ void ModelData::clear()
   disableThrottleWarning = false;
   enableCustomThrottleWarning = false;
   customThrottleWarningPosition = 0;
+  idleTrimStepMode = 0;
+  idleTrimCustomStep = 4;
   jitterFilter = 0;
   beepANACenter = 0;
   extendedLimits = false;

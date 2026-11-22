@@ -1067,6 +1067,10 @@ Node convert<ModelData>::encode(const ModelData& rhs)
   node["disableThrottleWarning"] = (int)rhs.disableThrottleWarning;
   node["enableCustomThrottleWarning"] = (int)rhs.enableCustomThrottleWarning;
   node["customThrottleWarningPosition"] = (int)rhs.customThrottleWarningPosition;
+  if (IS_RADIOMASTER_TX15(board) || IS_RADIOMASTER_TX16SMK3(board)) {
+    node["idleTrimStepMode"] = rhs.idleTrimStepMode;
+    node["idleTrimCustomStep"] = rhs.idleTrimCustomStep;
+  }
   YamlBeepANACenter beepCenter(rhs.beepANACenter);
   node["beepANACenter"] = beepCenter.value;
   node["extendedLimits"] = (int)rhs.extendedLimits;
@@ -1386,6 +1390,12 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
   node["disableThrottleWarning"] >> rhs.disableThrottleWarning;
   node["enableCustomThrottleWarning"] >> rhs.enableCustomThrottleWarning;
   node["customThrottleWarningPosition"] >> rhs.customThrottleWarningPosition;
+  if (IS_RADIOMASTER_TX15(board) || IS_RADIOMASTER_TX16SMK3(board)) {
+    if (node["idleTrimStepMode"])
+      node["idleTrimStepMode"] >> rhs.idleTrimStepMode;
+    if (node["idleTrimCustomStep"])
+      node["idleTrimCustomStep"] >> rhs.idleTrimCustomStep;
+  }
   YamlBeepANACenter beepCenter;
   node["beepANACenter"] >> beepCenter.value;
   rhs.beepANACenter = beepCenter.toCpn();
