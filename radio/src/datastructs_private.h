@@ -795,7 +795,7 @@ PACK(struct ModelData {
 #endif
   int8_t    customThrottleWarningPosition;
 #if defined(RADIO_TX15) || defined(RADIO_TX16SMK3)
-  uint8_t idleTrimCustomStep;
+  uint16_t idleTrimCustomStep;
 #endif
   BeepANACenter beepANACenter;
   MixData   mixData[MAX_MIXERS] NO_IDX;
