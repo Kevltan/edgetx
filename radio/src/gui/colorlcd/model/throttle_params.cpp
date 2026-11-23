@@ -25,6 +25,7 @@
 #include "switchchoice.h"
 #include "choice.h"
 
+#if defined(RADIO_TX15) || defined(RADIO_TX16SMK3)
 class IdleTrimCustomStepChoice : public Choice
 {
  public:
@@ -42,6 +43,7 @@ class IdleTrimCustomStepChoice : public Choice
     Choice::checkEvents();
   }
 };
+#endif
 
 #define SET_DIRTY()     storageDirty(EE_MODEL)
 
