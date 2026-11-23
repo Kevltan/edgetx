@@ -25,6 +25,24 @@
 #include "switchchoice.h"
 #include "choice.h"
 
+class IdleTrimCustomStepChoice : public Choice
+{
+ public:
+  using Choice::Choice;
+
+ protected:
+  void checkEvents() override
+  {
+    bool shouldBeVisible =
+        g_model.thrTrim &&
+        g_model.idleTrimStepMode == IDLE_TRIM_STEP_CUSTOM;
+    if (isVisible() != shouldBeVisible)
+      show(shouldBeVisible);
+
+    Choice::checkEvents();
+  }
+};
+
 #define SET_DIRTY()     storageDirty(EE_MODEL)
 
 static SetupLineDef setupLines[] = {
@@ -115,7 +133,7 @@ static SetupLineDef setupLines[] = {
       stepType->setAvailableHandler(
           [](int value) { return value != 3 || g_model.thrTrim; });
 
-      auto customStep = new Choice(
+      auto customStep = new IdleTrimCustomStepChoice(
           parent, {x + 150, y, 0, 0}, customStepValues, 0, 7,
           []() {
             for (int i = 0; i < DIM(customSteps); i++) {
