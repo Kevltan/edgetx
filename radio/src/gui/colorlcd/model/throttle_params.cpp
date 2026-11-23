@@ -99,6 +99,12 @@ static SetupLineDef setupLines[] = {
       auto stepType = new Choice(
           parent, {x, y, 0, 0}, values, 0, 3,
           []() {
+            // Keep a valid visible selection if Custom is stored but
+            // Idle Only is disabled. The stored Custom setting is preserved.
+            if (!g_model.thrTrim &&
+                g_model.idleTrimStepMode == IDLE_TRIM_STEP_CUSTOM)
+              return 1;
+
             switch (g_model.idleTrimStepMode) {
               case IDLE_TRIM_STEP_FINE: return 0;
               case IDLE_TRIM_STEP_MEDIUM: return 1;
@@ -106,6 +112,8 @@ static SetupLineDef setupLines[] = {
               default: return 3;
             }
           });
+      stepType->setAvailableHandler(
+          [](int value) { return value != 3 || g_model.thrTrim; });
 
       auto customStep = new Choice(
           parent, {x + 150, y, 0, 0}, customStepValues, 0, 7,
@@ -121,7 +129,8 @@ static SetupLineDef setupLines[] = {
             g_model.idleTrimCustomStep = customSteps[value];
             SET_DIRTY();
           });
-      if (g_model.idleTrimStepMode != IDLE_TRIM_STEP_CUSTOM)
+      if (!g_model.thrTrim ||
+          g_model.idleTrimStepMode != IDLE_TRIM_STEP_CUSTOM)
         customStep->hide();
 
       stepType->setSetValueHandler(
@@ -131,11 +140,15 @@ static SetupLineDef setupLines[] = {
               case 1: g_model.idleTrimStepMode = IDLE_TRIM_STEP_MEDIUM; break;
               case 2: g_model.idleTrimStepMode = IDLE_TRIM_STEP_COARSE; break;
               default:
+                // The availability handler prevents this while Idle Only is off.
+                if (!g_model.thrTrim)
+                  return;
                 g_model.idleTrimStepMode = IDLE_TRIM_STEP_CUSTOM;
                 normalizeCustomStep();
                 break;
             }
-            if (g_model.idleTrimStepMode == IDLE_TRIM_STEP_CUSTOM)
+            if (g_model.thrTrim &&
+                g_model.idleTrimStepMode == IDLE_TRIM_STEP_CUSTOM)
               customStep->show();
             else
               customStep->hide();
