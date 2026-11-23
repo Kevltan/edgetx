@@ -9,6 +9,7 @@ on:
         type: choice
         options:
           - main
+          - idle-only-throttle-trim-steps-test
         default: main
 
 permissions:
