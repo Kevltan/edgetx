@@ -76,7 +76,7 @@ if(Qt5Widgets_FOUND)
 
   target_compile_options(${SIMULATOR_TARGET} PRIVATE ${SIMU_SRC_OPTIONS})
   target_compile_definitions(${SIMULATOR_TARGET} PUBLIC ${APP_COMMON_DEFINES})
-  target_link_libraries(${SIMULATOR_TARGET} ${SDL_LIBRARY} Qt5::Core)
+  target_link_libraries(${SIMULATOR_TARGET} PRIVATE ${SDL_LIBRARY} Qt5::Core)
 
   # Remove debug symbols on release builds
   if(NOT CLANG)
