@@ -3,7 +3,7 @@ name: Build TX15 and TX16S MK3 startup widget firmware
 on:
   push:
     branches:
-      - tx15-tx16smk3-clean-2.12.5
+      - widget-focus-option-at-startup
 
 jobs:
   build:
