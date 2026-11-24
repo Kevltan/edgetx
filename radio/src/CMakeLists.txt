@@ -2,10 +2,14 @@
 # which expects unsigned* rather than uint32_t*. Keep this in sync with
 # EdgeTX/lvgl commit 6f9261e0d37a67e68ed443c7d80226d7e4b9dc9b.
 set(EDGETX_LV_PNG_SOURCE "${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/libopenui/thirdparty/lvgl/src/extra/libs/png/lv_png.c")
-if(EXISTS "${EDGETX_LV_PNG_SOURCE}")
-  file(READ "${EDGETX_LV_PNG_SOURCE}" EDGETX_LV_PNG_CONTENT)
-  string(REPLACE "uint32_t png_width;" "unsigned png_width;" EDGETX_LV_PNG_CONTENT "${EDGETX_LV_PNG_CONTENT}")
-  string(REPLACE "uint32_t png_height;" "unsigned png_height;" EDGETX_LV_PNG_CONTENT "${EDGETX_LV_PNG_CONTENT}")
+if(NOT EXISTS "${EDGETX_LV_PNG_SOURCE}")
+  message(FATAL_ERROR "Expected LVGL PNG decoder source was not found: ${EDGETX_LV_PNG_SOURCE}")
+endif()
+file(READ "${EDGETX_LV_PNG_SOURCE}" EDGETX_LV_PNG_CONTENT)
+set(EDGETX_LV_PNG_CONTENT_ORIGINAL "${EDGETX_LV_PNG_CONTENT}")
+string(REPLACE "uint32_t png_width;" "unsigned png_width;" EDGETX_LV_PNG_CONTENT "${EDGETX_LV_PNG_CONTENT}")
+string(REPLACE "uint32_t png_height;" "unsigned png_height;" EDGETX_LV_PNG_CONTENT "${EDGETX_LV_PNG_CONTENT}")
+if(NOT EDGETX_LV_PNG_CONTENT STREQUAL EDGETX_LV_PNG_CONTENT_ORIGINAL)
   file(WRITE "${EDGETX_LV_PNG_SOURCE}" "${EDGETX_LV_PNG_CONTENT}")
 endif()
 
