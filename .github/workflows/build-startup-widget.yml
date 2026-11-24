@@ -4,13 +4,6 @@ on:
   push:
     branches:
       - tx15-tx16smk3-clean-2.12.5
-    paths:
-      - '.github/workflows/build-startup-widget.yml'
-      - 'radio/**'
-      - 'tools/build-gh.sh'
-      - 'cmake/**'
-      - '.gitmodules'
-      - 'CMakeLists.txt'
 
 jobs:
   build:
