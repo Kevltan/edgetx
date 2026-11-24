@@ -4,6 +4,7 @@
 #
 import os
 import sys
+import glob
 from clang.cindex import *
 
 # Check if libclang is able to find the builtin include files.
@@ -62,7 +63,11 @@ def findLibClang():
         ]
         libSuffix = ".dylib"
     elif sys.platform.startswith("linux"):
+        # Prefer an explicitly configured library directory, then discover
+        # versioned LLVM installations (for example /usr/lib/llvm-14/lib).
         knownPaths = [
+            os.environ.get("LIBCLANG_PATH", ""),
+            *sorted(glob.glob("/usr/lib/llvm-*/lib"), reverse=True),
             "/usr/lib/llvm-7/lib",
             "/usr/lib/llvm-6.0/lib",
             "/usr/lib/llvm-3.8/lib",
@@ -70,6 +75,7 @@ def findLibClang():
             "/usr/lib",
             "/usr/lib64"
         ]
+        knownPaths = [path for path in knownPaths if path]
         libSuffix = ".so"
     elif sys.platform == "win32" or sys.platform == "msys":
         knownPaths = os.environ.get("PATH").split(os.pathsep)
