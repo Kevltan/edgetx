@@ -76,6 +76,18 @@ jobs:
           submodules: recursive
           # fetch-depth: 0 # https://github.com/actions/checkout#Fetch-all-history-for-all-tags-and-branches
 
+      # This source tree still uses Qt 5 for the native simulator and radio tests.
+      # The current edgetx-dev:latest image ships Qt 6, so install the Qt 5
+      # development modules needed by this older branch before configuring native targets.
+      - name: Install Qt 5 test dependencies
+        run: |
+          apt-get update
+          apt-get install --yes --no-install-recommends \
+            qtbase5-dev \
+            qttools5-dev \
+            qtmultimedia5-dev \
+            libqt5svg5-dev
+
       - name: Test ${{ matrix.target }}
         env:
           FLAVOR: ${{ matrix.target }}
