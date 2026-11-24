@@ -258,22 +258,6 @@ struct CenterBeepsMatrix : public ButtonMatrix {
   uint8_t ana_idx[MAX_ANALOG_INPUTS];
 };
 
-#if defined(RADIO_TX15) || defined(RADIO_TX16SMK3)
-static SetupLineDef startupOptionsSetupLines[] = {
-  {
-    STR_DEF(STR_EDGETX_ICON_AT_STARTUP),
-    [](Window* parent, coord_t x, coord_t y) {
-      new ToggleSwitch(parent, {x, y, 0, 0},
-                       [=]() { return g_model.widgetModeAtStartup; },
-                       [=](uint8_t value) {
-                         g_model.widgetModeAtStartup = value;
-                         SET_DIRTY();
-                       });
-    }
-  },
-};
-#endif
-
 static SetupLineDef otherPageSetupLines[] = {
   {
     STR_DEF(STR_JITTER_FILTER),
@@ -362,6 +346,19 @@ static SetupLineDef setupLines[] = {
                      }, false, STR_BITMAP);
     }
   },
+#if defined(RADIO_TX15) || defined(RADIO_TX16SMK3)
+  {
+    STR_DEF(STR_EDGETX_ICON_AT_STARTUP),
+    [](Window* parent, coord_t x, coord_t y) {
+      new ToggleSwitch(parent, {x, y, 0, 0},
+                       [=]() { return g_model.widgetModeAtStartup; },
+                       [=](uint8_t value) {
+                         g_model.widgetModeAtStartup = value;
+                         SET_DIRTY();
+                       });
+    }
+  },
+#endif
 };
 
 void ModelSetupPage::build(Window * window)
@@ -382,9 +379,6 @@ void ModelSetupPage::build(Window * window)
     {STR_DEF(STR_TRIMS), []() { new TrimsSetup(); }},
     {STR_DEF(STR_THROTTLE_LABEL), []() { new ThrottleParams(); }},
     {STR_DEF(STR_ENABLED_FEATURES), []() { new SubPage(ICON_MODEL_SETUP, STR_MAIN_MENU_MODEL_SETTINGS, STR_ENABLED_FEATURES, viewOptionsPageSetupLines, DIM(viewOptionsPageSetupLines)); }},
-#if defined(RADIO_TX15) || defined(RADIO_TX16SMK3)
-    {STR_DEF(STR_STARTUP_OPTIONS), []() { new SubPage(ICON_MODEL_SETUP, STR_MAIN_MENU_MODEL_SETTINGS, STR_STARTUP_OPTIONS, startupOptionsSetupLines, DIM(startupOptionsSetupLines)); }},
-#endif
 #if defined(USBJ_EX)
     {STR_DEF(STR_USBJOYSTICK_LABEL), []() { new ModelUSBJoystickPage(); }},
 #endif
