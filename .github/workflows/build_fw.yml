@@ -6,6 +6,7 @@ on:
       - 'main'
       - '[0-9]+.[0-9]+'
       - 'idle-only-throttle-trim-steps-test'
+      - 'idle-only-throttle-trim-steps'
     tags:
       - v*
     paths: &trigger-paths
