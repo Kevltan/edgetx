@@ -1,5 +1,5 @@
----
 name: Run tests and package firmware
+# Re-run CI against the current startup-volume-fix branch head.
 on:
   push:
     branches:
