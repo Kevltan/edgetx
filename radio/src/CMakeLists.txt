@@ -1,3 +1,15 @@
+# LVGL 8.2's PNG decoder passes these dimensions to lodepng_decode32(),
+# which expects unsigned* rather than uint32_t*. Keep this in sync with
+# EdgeTX/lvgl commit 6f9261e0d37a67e68ed443c7d80226d7e4b9dc9b.
+set(EDGETX_LV_PNG_SOURCE "${CMAKE_CURRENT_SOURCE_DIR} /thirdparty/libopenui/thirdparty/lvgl/src/extra/libs/png/lv_png.c")
+string(STRIP "${EDGETX_LV_PNG_SOURCE}" EDGETX_LV_PNG_SOURCE)
+if(EXISTS "${EDGETX_LV_PNG_SOURCE}")
+  file(READ "${EDGETX_LV_PNG_SOURCE}" EDGETX_LV_PNG_CONTENT)
+  string(REPLACE "uint32_t png_width;" "unsigned png_width;" EDGETX_LV_PNG_CONTENT "${EDGETX_LV_PNG_CONTENT}")
+  string(REPLACE "uint32_t png_height;" "unsigned png_height;" EDGETX_LV_PNG_CONTENT "${EDGETX_LV_PNG_CONTENT}")
+  file(WRITE "${EDGETX_LV_PNG_SOURCE}" "${EDGETX_LV_PNG_CONTENT}")
+endif()
+
 include(CMakeForceCompiler)
 include(Bitmaps)
 
