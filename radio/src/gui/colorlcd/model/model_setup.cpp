@@ -354,8 +354,10 @@ static SetupLineDef setupLines[] = {
       auto btn = new TextButton(parent, {x, y, 0, 0},
                                 g_model.widgetModeAtStartup ? "Focus" : "Normal");
       btn->check(g_model.widgetModeAtStartup);
-      etx_bg_color(btn->getLvObj(), COLOR_THEME_FOCUS_INDEX,
+      etx_bg_color(btn->getLvObj(), COLOR_THEME_ACTIVE_INDEX,
                    LV_PART_MAIN | LV_STATE_CHECKED);
+      etx_txt_color(btn->getLvObj(), COLOR_THEME_PRIMARY1_INDEX,
+                    LV_PART_MAIN | LV_STATE_CHECKED);
       btn->setPressHandler([=]() {
         Menu* menu = new Menu();
         menu->setTitle(STR_EDGETX_ICON_AT_STARTUP);
