@@ -349,7 +349,7 @@ static SetupLineDef setupLines[] = {
   },
 #if defined(RADIO_TX15) || defined(RADIO_TX16SMK3)
   {
-    STR_DEF(STR_EDGETX_ICON_AT_STARTUP),
+    STR_DEF(STR_WIDGET_MODE_AT_STARTUP),
     [](Window* parent, coord_t x, coord_t y) {
       auto btn = new TextButton(parent, {x, y, 0, 0},
                                 g_model.widgetModeAtStartup ? "Focus" : "Normal");
@@ -358,7 +358,7 @@ static SetupLineDef setupLines[] = {
       });
       btn->setPressHandler([=]() {
         Menu* menu = new Menu();
-        menu->setTitle(STR_EDGETX_ICON_AT_STARTUP);
+        menu->setTitle(STR_WIDGET_MODE_AT_STARTUP);
         menu->addLine("Normal", [=]() {
           g_model.widgetModeAtStartup = 0;
           SET_DIRTY();
