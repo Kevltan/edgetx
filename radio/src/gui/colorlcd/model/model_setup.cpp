@@ -383,6 +383,8 @@ static SetupLineDef setupLines[] = {
           btn->setText("Focus");
           btn->check(true);
         }, [=]() { return g_model.widgetModeAtStartup; });
+        // Position the blue menu cursor on the currently selected option.
+        menu->select(g_model.widgetModeAtStartup ? 1 : 0);
         return 0;
       });
     }
