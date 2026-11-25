@@ -425,7 +425,7 @@ void ModelSetupPage::build(Window * window)
 #endif
 #if defined(RADIO_TX15) || defined(RADIO_TX16SMK3)
     // General options page; kept as the final button to centre the last row.
-    {STR_DEF("Options"), []() { new WidgetOptionsPage(); }},
+    {STR_DEF(STR_OPTIONS), []() { new WidgetOptionsPage(); }},
 #endif
   }, BTN_H);
 }
