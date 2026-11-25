@@ -354,10 +354,20 @@ static SetupLineDef setupLines[] = {
       auto btn = new TextButton(parent, {x, y, 0, 0},
                                 g_model.widgetModeAtStartup ? "Focus" : "Normal");
       btn->check(g_model.widgetModeAtStartup);
-      etx_bg_color(btn->getLvObj(), COLOR_THEME_ACTIVE_INDEX,
-                   LV_PART_MAIN | LV_STATE_CHECKED);
-      etx_txt_color(btn->getLvObj(), COLOR_THEME_PRIMARY1_INDEX,
-                    LV_PART_MAIN | LV_STATE_CHECKED);
+      // Keep the selected colour when LVGL adds focus or pressed states.
+      constexpr lv_style_selector_t checkedState = LV_PART_MAIN | LV_STATE_CHECKED;
+      constexpr lv_style_selector_t checkedFocusedState =
+          LV_PART_MAIN | LV_STATE_CHECKED | LV_STATE_FOCUSED;
+      constexpr lv_style_selector_t checkedPressedState =
+          LV_PART_MAIN | LV_STATE_CHECKED | LV_STATE_PRESSED;
+      constexpr lv_style_selector_t checkedFocusedPressedState =
+          LV_PART_MAIN | LV_STATE_CHECKED | LV_STATE_FOCUSED | LV_STATE_PRESSED;
+
+      for (auto selector : {checkedState, checkedFocusedState,
+                            checkedPressedState, checkedFocusedPressedState}) {
+        etx_bg_color(btn->getLvObj(), COLOR_THEME_ACTIVE_INDEX, selector);
+        etx_txt_color(btn->getLvObj(), COLOR_THEME_PRIMARY1_INDEX, selector);
+      }
       btn->setPressHandler([=]() {
         Menu* menu = new Menu();
         menu->setTitle(STR_EDGETX_ICON_AT_STARTUP);
