@@ -351,7 +351,7 @@ static SetupLineDef setupLines[] = {
   {
     STR_DEF(STR_EDGETX_ICON_AT_STARTUP),
     [](Window* parent, coord_t x, coord_t y) {
-      auto btn = new TextButton(parent, {x, y, 50, 0},
+      auto btn = new TextButton(parent, {x, y, 0, 0},
                                 g_model.widgetModeAtStartup ? "Focus" : "Normal");
       btn->check(g_model.widgetModeAtStartup);
       etx_bg_color(btn->getLvObj(), COLOR_THEME_FOCUS_INDEX,
