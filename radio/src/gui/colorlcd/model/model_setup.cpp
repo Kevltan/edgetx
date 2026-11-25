@@ -21,9 +21,10 @@
 
 #include "model_setup.h"
 
+#include "button.h"
 #include "button_matrix.h"
 #include "filechoice.h"
-#include "toggleswitch.h"
+#include "menu.h"
 
 #include "hal/adc_driver.h"
 #include "storage/modelslist.h"
@@ -350,12 +351,23 @@ static SetupLineDef setupLines[] = {
   {
     STR_DEF(STR_EDGETX_ICON_AT_STARTUP),
     [](Window* parent, coord_t x, coord_t y) {
-      new ToggleSwitch(parent, {x, y, 0, 0},
-                       [=]() { return g_model.widgetModeAtStartup; },
-                       [=](uint8_t value) {
-                         g_model.widgetModeAtStartup = value;
-                         SET_DIRTY();
-                       });
+      auto btn = new TextButton(parent, {x, y, ModelSetupPage::OPTS_W, 0},
+                                g_model.widgetModeAtStartup ? "ON" : "OFF");
+      btn->setPressHandler([=]() {
+        Menu* menu = new Menu();
+        menu->setTitle(STR_EDGETX_ICON_AT_STARTUP);
+        menu->addLine("OFF", [=]() {
+          g_model.widgetModeAtStartup = 0;
+          SET_DIRTY();
+          btn->setText("OFF");
+        }, [=]() { return !g_model.widgetModeAtStartup; });
+        menu->addLine("ON", [=]() {
+          g_model.widgetModeAtStartup = 1;
+          SET_DIRTY();
+          btn->setText("ON");
+        }, [=]() { return g_model.widgetModeAtStartup; });
+        return 0;
+      });
     }
   },
 #endif
