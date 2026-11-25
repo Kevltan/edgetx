@@ -10,6 +10,7 @@ on:
       - 'startup-volume-fix'
       - 'widget-focus-main-model-setup'
       - 'widget-focus-popup'
+      - 'widget-focus-with-popup-selection-window'
     tags:
       - v*
     paths: &trigger-paths
