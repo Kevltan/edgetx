@@ -382,17 +382,6 @@ static SetupLineDef widgetOptionsSetupLines[] = {
   },
 };
 
-class WidgetOptionsPage : public PageGroupItem
-{
- public:
-  WidgetOptionsPage() : PageGroupItem("Options") {}
-
-  void build(Window* window) override
-  {
-    SetupLine::showLines(window, 0, SubPage::EDT_X, padding,
-                         widgetOptionsSetupLines, DIM(widgetOptionsSetupLines));
-  }
-};
 #endif
 
 void ModelSetupPage::build(Window * window)
@@ -419,13 +408,13 @@ void ModelSetupPage::build(Window * window)
 #if defined(FUNCTION_SWITCHES)
     {STR_DEF(STR_FUNCTION_SWITCHES), []() { new ModelFunctionSwitches(); }},
 #endif
-    {STR_DEF(STR_MENU_OTHER), []() { new SubPage(ICON_MODEL_SETUP, STR_MAIN_MENU_MODEL_SETTINGS, STR_MENU_OTHER, otherPageSetupLines, DIM(otherPageSetupLines)); }},
 #if defined(HELI)
     {STR_DEF(STR_MENUHELISETUP), []() { return new ModelHeliPage(); }, nullptr, modelHeliEnabled},
 #endif
+    {STR_DEF(STR_MENU_OTHER), []() { new SubPage(ICON_MODEL_SETUP, STR_MAIN_MENU_MODEL_SETTINGS, STR_MENU_OTHER, otherPageSetupLines, DIM(otherPageSetupLines)); }},
 #if defined(RADIO_TX15) || defined(RADIO_TX16SMK3)
-    // General options page; kept as the final button to centre the last row.
-    {STR_DEF(STR_OPTIONS), []() { new WidgetOptionsPage(); }},
+    // Keep Options as the final button so it pairs with Other on the centred last row.
+    {STR_DEF(STR_OPTIONS), []() { new SubPage(ICON_MODEL_SETUP, STR_MAIN_MENU_MODEL_SETTINGS, STR_OPTIONS, widgetOptionsSetupLines, DIM(widgetOptionsSetupLines)); }},
 #endif
   }, BTN_H);
 }
