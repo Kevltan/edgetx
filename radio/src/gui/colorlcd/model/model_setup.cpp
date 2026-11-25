@@ -351,7 +351,7 @@ static SetupLineDef setupLines[] = {
   {
     STR_DEF(STR_EDGETX_ICON_AT_STARTUP),
     [](Window* parent, coord_t x, coord_t y) {
-      auto btn = new TextButton(parent, {x, y, ModelSetupPage::OPTS_W, 0},
+      auto btn = new TextButton(parent, {x, y, 50, 0},
                                 g_model.widgetModeAtStartup ? "ON" : "OFF");
       btn->setPressHandler([=]() {
         Menu* menu = new Menu();
