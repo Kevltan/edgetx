@@ -9,6 +9,7 @@ on:
       - 'startup-volume-gf-test'
       - 'startup-volume-fix'
       - 'widget-focus-main-model-setup'
+      - 'widget-focus-popup'
     tags:
       - v*
     paths: &trigger-paths
