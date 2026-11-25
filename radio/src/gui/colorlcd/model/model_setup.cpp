@@ -352,23 +352,23 @@ static SetupLineDef setupLines[] = {
     STR_DEF(STR_EDGETX_ICON_AT_STARTUP),
     [](Window* parent, coord_t x, coord_t y) {
       auto btn = new TextButton(parent, {x, y, 50, 0},
-                                g_model.widgetModeAtStartup ? "ON" : "OFF");
+                                g_model.widgetModeAtStartup ? "Focus" : "Normal");
       btn->check(g_model.widgetModeAtStartup);
       etx_bg_color(btn->getLvObj(), COLOR_THEME_FOCUS_INDEX,
                    LV_PART_MAIN | LV_STATE_CHECKED);
       btn->setPressHandler([=]() {
         Menu* menu = new Menu();
         menu->setTitle(STR_EDGETX_ICON_AT_STARTUP);
-        menu->addLine("OFF", [=]() {
+        menu->addLine("Normal", [=]() {
           g_model.widgetModeAtStartup = 0;
           SET_DIRTY();
-          btn->setText("OFF");
+          btn->setText("Normal");
           btn->check(false);
         }, [=]() { return !g_model.widgetModeAtStartup; });
-        menu->addLine("ON", [=]() {
+        menu->addLine("Focus", [=]() {
           g_model.widgetModeAtStartup = 1;
           SET_DIRTY();
-          btn->setText("ON");
+          btn->setText("Focus");
           btn->check(true);
         }, [=]() { return g_model.widgetModeAtStartup; });
         return 0;
