@@ -551,16 +551,15 @@ NavWindow::NavWindow(Window *parent, const rect_t &rect,
 class SetupTextButton : public TextButton
 {
  public:
-  SetupTextButton(Window* parent, const rect_t& rect, PageButtonDef& entry) :
+  SetupTextButton(Window* parent, const rect_t& rect, PageButtonDef entry) :
       TextButton(parent, rect, STR_VAL(entry.title))
   {
     setPressHandler([=] {
-      entry.createPage();
+      if (entry.createPage) entry.createPage();
       return 0;
     });
     setCheckHandler([=]() {
       if (entry.isActive) check(entry.isActive());
-      if (entry.enabled) show(entry.enabled());
     });
     setWrap();
   }
@@ -571,48 +570,88 @@ class SetupTextButton : public TextButton
 SetupButtonGroup::SetupButtonGroup(Window* parent, const rect_t& rect, const char* title, int cols,
                                    PaddingSize padding, PageDefs pages, coord_t btnHeight,
                                    bool compactDisabled) :
-    Window(parent, rect)
+    Window(parent, rect), columns(cols), buttonHeight(btnHeight),
+    compactDisabled(compactDisabled), hasTitle(title != nullptr)
 {
   padAll(padding);
 
-  std::vector<PageButtonDef*> visiblePages;
-  visiblePages.reserve(pages.size());
-  for (auto& entry : pages) {
-    if (!compactDisabled || !entry.enabled || entry.enabled())
-      visiblePages.push_back(&entry);
-  }
+  buttonWidth = (width() - PAD_SMALL * (columns + 1) - PAD_TINY * 2) / columns;
+  buttonYOffset = hasTitle ? EdgeTxStyles::STD_FONT_HEIGHT + PAD_TINY : 0;
 
-  coord_t buttonWidth = (width() - PAD_SMALL * (cols + 1) - PAD_TINY * 2) / cols;
-
-  int rows = (visiblePages.size() + cols - 1) / cols;
-  int height = rows * btnHeight + (rows - 1) * PAD_MEDIUM + PAD_TINY * 2;
-  if (title) {
-    height += EdgeTxStyles::STD_FONT_HEIGHT + PAD_TINY;
-  }
-  setHeight(height);
-
-  if (title)
+  if (hasTitle)
     new Subtitle(this, title);
 
+  for (auto& entry : pages) {
+    auto button = new SetupTextButton(
+        this, {0, buttonYOffset, buttonWidth, buttonHeight}, entry);
+    buttonLayout.push_back({button, entry.enabled, false});
+  }
+
+  updateLayout();
+}
+
+void SetupButtonGroup::checkEvents()
+{
+  if (deleted()) return;
+  updateLayout();
+  Window::checkEvents();
+}
+
+void SetupButtonGroup::updateLayout()
+{
+  bool visibilityChanged = !layoutInitialized;
+  size_t visibleCount = 0;
+
+  for (auto& item : buttonLayout) {
+    bool visible = !item.enabled || item.enabled();
+    if (visible != item.visible)
+      visibilityChanged = true;
+    item.visible = visible;
+    if (visible)
+      visibleCount++;
+    item.button->show(visible);
+  }
+
+  if (!visibilityChanged)
+    return;
+
+  layoutInitialized = true;
+
   int n = 0;
-  int remaining = visiblePages.size();
-  coord_t yo = title ? EdgeTxStyles::STD_FONT_HEIGHT + PAD_TINY : 0;
+  int remaining = compactDisabled ? static_cast<int>(visibleCount)
+                                 : static_cast<int>(buttonLayout.size());
   coord_t xw = buttonWidth + PAD_SMALL;
-  coord_t xo = (width() - (cols * xw - PAD_SMALL)) / 2;
-  coord_t x, y;
-  for (auto entry : visiblePages) {
-    if (remaining < cols && (n % cols == 0)) {
-      coord_t space = ((cols - remaining) * xw) / (remaining + 1);
+  coord_t xo = (width() - (columns * xw - PAD_SMALL)) / 2;
+
+  for (auto& item : buttonLayout) {
+    if (compactDisabled && !item.visible)
+      continue;
+
+    if (remaining < columns && (n % columns == 0)) {
+      coord_t space = ((columns - remaining) * xw) / (remaining + 1);
       xw += space;
       xo += space;
     }
-    x = xo + (n % cols) * xw;
-    y = yo + (n / cols) * (btnHeight + PAD_MEDIUM);
 
-    new SetupTextButton(this, {x, y, buttonWidth, btnHeight}, *entry);
-    n += 1;
-    remaining -= 1;
+    coord_t x = xo + (n % columns) * xw;
+    coord_t y = buttonYOffset + (n / columns) * (buttonHeight + PAD_MEDIUM);
+    item.button->setPos(x, y);
+
+    n++;
+    remaining--;
   }
+
+  int layoutButtonCount = compactDisabled
+                              ? static_cast<int>(visibleCount)
+                              : static_cast<int>(buttonLayout.size());
+  int rows = (layoutButtonCount + columns - 1) / columns;
+
+  int height = rows > 0
+                   ? rows * buttonHeight + (rows - 1) * PAD_MEDIUM + PAD_TINY * 2
+                   : PAD_TINY * 2;
+  if (hasTitle)
+    height += EdgeTxStyles::STD_FONT_HEIGHT + PAD_TINY;
+  setHeight(height);
 }
 
 SetupLine::SetupLine(Window* parent, coord_t y, coord_t col2, PaddingSize padding, const char* title,

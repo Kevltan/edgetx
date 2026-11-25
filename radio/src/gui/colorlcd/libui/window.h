@@ -293,6 +293,7 @@ class SetupButtonGroup : public Window
   struct ButtonLayout {
     Window* button;
     std::function<bool()> enabled;
+    bool visible = false;
   };
 
   std::list<ButtonLayout> buttonLayout;
@@ -302,6 +303,7 @@ class SetupButtonGroup : public Window
   coord_t buttonYOffset = 0;
   bool compactDisabled = false;
   bool hasTitle = false;
+  bool layoutInitialized = false;
 };
 
 struct SetupLineDef {
