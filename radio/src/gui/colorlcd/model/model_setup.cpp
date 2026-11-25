@@ -376,6 +376,7 @@ static SetupLineDef setupLines[] = {
         return 0;
       });
     }
+  },
 #endif
 };
 
