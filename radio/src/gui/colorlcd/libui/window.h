@@ -286,6 +286,22 @@ class SetupButtonGroup : public Window
                    bool compactDisabled = false);
 
  protected:
+  void checkEvents() override;
+  void updateLayout();
+
+ private:
+  struct ButtonLayout {
+    Window* button;
+    std::function<bool()> enabled;
+  };
+
+  std::list<ButtonLayout> buttonLayout;
+  int columns = 0;
+  coord_t buttonWidth = 0;
+  coord_t buttonHeight = 0;
+  coord_t buttonYOffset = 0;
+  bool compactDisabled = false;
+  bool hasTitle = false;
 };
 
 struct SetupLineDef {
