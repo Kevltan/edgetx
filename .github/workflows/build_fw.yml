@@ -11,6 +11,7 @@ on:
       - 'widget-focus-main-model-setup'
       - 'widget-focus-popup'
       - 'widget-focus-with-popup-selection-window'
+      - 'widget-mode-bottom-right-popup'
     tags:
       - v*
     paths: &trigger-paths
