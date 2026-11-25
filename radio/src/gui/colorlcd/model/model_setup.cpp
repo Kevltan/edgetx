@@ -416,5 +416,5 @@ void ModelSetupPage::build(Window * window)
     // Keep Options as the final button so it pairs with Other on the centred last row.
     {STR_DEF(STR_OPTIONS), []() { new SubPage(ICON_MODEL_SETUP, STR_MAIN_MENU_MODEL_SETTINGS, STR_OPTIONS, widgetOptionsSetupLines, DIM(widgetOptionsSetupLines)); }},
 #endif
-  }, BTN_H);
+  }, BTN_H, true);
 }
