@@ -569,14 +569,22 @@ class SetupTextButton : public TextButton
 };
 
 SetupButtonGroup::SetupButtonGroup(Window* parent, const rect_t& rect, const char* title, int cols,
-                                   PaddingSize padding, PageDefs pages, coord_t btnHeight) :
+                                   PaddingSize padding, PageDefs pages, coord_t btnHeight,
+                                   bool compactDisabled) :
     Window(parent, rect)
 {
   padAll(padding);
 
+  std::vector<PageButtonDef*> visiblePages;
+  visiblePages.reserve(pages.size());
+  for (auto& entry : pages) {
+    if (!compactDisabled || !entry.enabled || entry.enabled())
+      visiblePages.push_back(&entry);
+  }
+
   coord_t buttonWidth = (width() - PAD_SMALL * (cols + 1) - PAD_TINY * 2) / cols;
 
-  int rows = (pages.size() + cols - 1) / cols;
+  int rows = (visiblePages.size() + cols - 1) / cols;
   int height = rows * btnHeight + (rows - 1) * PAD_MEDIUM + PAD_TINY * 2;
   if (title) {
     height += EdgeTxStyles::STD_FONT_HEIGHT + PAD_TINY;
@@ -587,12 +595,12 @@ SetupButtonGroup::SetupButtonGroup(Window* parent, const rect_t& rect, const cha
     new Subtitle(this, title);
 
   int n = 0;
-  int remaining = pages.size();
+  int remaining = visiblePages.size();
   coord_t yo = title ? EdgeTxStyles::STD_FONT_HEIGHT + PAD_TINY : 0;
   coord_t xw = buttonWidth + PAD_SMALL;
   coord_t xo = (width() - (cols * xw - PAD_SMALL)) / 2;
   coord_t x, y;
-  for (auto& entry : pages) {
+  for (auto entry : visiblePages) {
     if (remaining < cols && (n % cols == 0)) {
       coord_t space = ((cols - remaining) * xw) / (remaining + 1);
       xw += space;
@@ -601,7 +609,7 @@ SetupButtonGroup::SetupButtonGroup(Window* parent, const rect_t& rect, const cha
     x = xo + (n % cols) * xw;
     y = yo + (n / cols) * (btnHeight + PAD_MEDIUM);
 
-    new SetupTextButton(this, {x, y, buttonWidth, btnHeight}, entry);
+    new SetupTextButton(this, {x, y, buttonWidth, btnHeight}, *entry);
     n += 1;
     remaining -= 1;
   }
