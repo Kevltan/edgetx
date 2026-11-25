@@ -347,42 +347,41 @@ static SetupLineDef setupLines[] = {
                      }, false, STR_BITMAP);
     }
   },
-#if defined(RADIO_TX15) || defined(RADIO_TX16SMK3)
-  {
-    STR_DEF(STR_WIDGET_MODE_AT_STARTUP),
-    [](Window* parent, coord_t x, coord_t y) {
-      auto btn = new TextButton(parent, {x, y, 0, 0},
-                                g_model.widgetModeAtStartup ? "Focus" : "Normal");
-      btn->setCheckHandler([=]() {
-        btn->check(g_model.widgetModeAtStartup);
-      });
-      btn->setPressHandler([=]() {
-        Menu* menu = new Menu();
-        menu->setTitle(STR_WIDGET_MODE_AT_STARTUP);
-        menu->addLine("Normal", [=]() {
-          g_model.widgetModeAtStartup = 0;
-          SET_DIRTY();
-          btn->setText("Normal");
-          btn->check(false);
-        }, [=]() { return !g_model.widgetModeAtStartup; });
-        menu->addLine("Focus", [=]() {
-          g_model.widgetModeAtStartup = 1;
-          SET_DIRTY();
-          btn->setText("Focus");
-          btn->check(true);
-        }, [=]() { return g_model.widgetModeAtStartup; });
-        // Position the blue menu cursor on the currently selected option.
-        menu->select(g_model.widgetModeAtStartup ? 1 : 0);
-        return 0;
-      });
-    }
-  },
-#endif
 };
 
 void ModelSetupPage::build(Window * window)
 {
   coord_t y = SetupLine::showLines(window, 0, SubPage::EDT_X, padding, setupLines, DIM(setupLines));
+
+#if defined(RADIO_TX15) || defined(RADIO_TX16SMK3)
+  // Keep the startup widget mode control separate from the model image row.
+  // Place it in the lower-right half of the Model Setup page.
+  auto widgetModeBtn = new TextButton(
+      window,
+      {LCD_W / 2, LCD_H - EdgeTxStyles::UI_ELEMENT_HEIGHT - padding,
+       LCD_W / 2 - padding, EdgeTxStyles::UI_ELEMENT_HEIGHT},
+      STR_WIDGET_MODE_AT_STARTUP);
+  widgetModeBtn->setCheckHandler([=]() {
+    widgetModeBtn->check(g_model.widgetModeAtStartup);
+  });
+  widgetModeBtn->setPressHandler([=]() {
+    Menu* menu = new Menu();
+    menu->setTitle(STR_WIDGET_MODE_AT_STARTUP);
+    menu->addLine("Normal", [=]() {
+      g_model.widgetModeAtStartup = 0;
+      SET_DIRTY();
+      widgetModeBtn->check(false);
+    }, [=]() { return !g_model.widgetModeAtStartup; });
+    menu->addLine("Focus", [=]() {
+      g_model.widgetModeAtStartup = 1;
+      SET_DIRTY();
+      widgetModeBtn->check(true);
+    }, [=]() { return g_model.widgetModeAtStartup; });
+    // Position the blue menu cursor on the currently selected option.
+    menu->select(g_model.widgetModeAtStartup ? 1 : 0);
+    return 0;
+  });
+#endif
 
   new SetupButtonGroup(window, {0, y, LCD_W - padding * 2, 0}, nullptr, BTN_COLS, PAD_TINY, {
     // Modules
