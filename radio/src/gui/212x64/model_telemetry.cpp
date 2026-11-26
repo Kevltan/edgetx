@@ -76,12 +76,16 @@ void onSensorMenu(const char * result)
       pushMenu(menuModelSensor);
     }
     else if (result == STR_DELETE) {
-      delTelemetryIndex(index);
-      index += 1;
-      if (index<MAX_TELEMETRY_SENSORS && isTelemetryFieldAvailable(index))
-        menuVerticalPosition += 1;
-      else
-        menuVerticalPosition = HEADER_LINE + ITEM_TELEMETRY_NEW_SENSOR;
+      if (!delTelemetryIndex(index)) {
+        POPUP_WARNING("Sensor is used by model settings");
+      }
+      else {
+        index += 1;
+        if (index<MAX_TELEMETRY_SENSORS && isTelemetryFieldAvailable(index))
+          menuVerticalPosition += 1;
+        else
+          menuVerticalPosition = HEADER_LINE + ITEM_TELEMETRY_NEW_SENSOR;
+      }
     }
     else if (result == STR_COPY) {
       int newIndex = availableTelemetryIndex();
@@ -104,9 +108,13 @@ void onSensorMenu(const char * result)
 void onDeleteAllSensorsConfirm(const char * result)
 {
   if (result == STR_OK) {
+    bool blocked = false;
     for (int i=0; i<MAX_TELEMETRY_SENSORS; i++) {
-      delTelemetryIndex(i);
+      if (!delTelemetryIndex(i))
+        blocked = true;
     }
+    if (blocked)
+      POPUP_WARNING("Some sensors are still used by model settings");
   }
 }
 
