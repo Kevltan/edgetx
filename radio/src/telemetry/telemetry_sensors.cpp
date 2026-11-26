@@ -549,15 +549,24 @@ static bool isTelemetrySensorReferenced(uint8_t index)
 
 #if MAX_SCRIPTS > 0
   // Model Lua script inputs can also hold telemetry source references.
-  // The source/value input is a union, so inspect only inputs declared as
-  // sources by the loaded script metadata.
+  // The source/value input is a union. Use script metadata when available;
+  // if it has not been loaded yet, conservatively protect matching values.
   for (int i = 0; i < MAX_SCRIPTS; i++) {
     const ScriptInputsOutputs & script = scriptInputsOutputs[i];
-    for (int j = 0; j < script.inputsCount && j < MAX_SCRIPT_INPUTS; j++) {
-      if (script.inputs[j].type == INPUT_TYPE_SOURCE &&
-          telemetrySourceReferencesSensor(g_model.scriptsData[i].inputs[j].source,
-                                          index))
-        return true;
+    if (script.inputsCount == 0) {
+      for (int j = 0; j < MAX_SCRIPT_INPUTS; j++) {
+        if (telemetrySourceReferencesSensor(g_model.scriptsData[i].inputs[j].source,
+                                            index))
+          return true;
+      }
+    }
+    else {
+      for (int j = 0; j < script.inputsCount && j < MAX_SCRIPT_INPUTS; j++) {
+        if (script.inputs[j].type == INPUT_TYPE_SOURCE &&
+            telemetrySourceReferencesSensor(g_model.scriptsData[i].inputs[j].source,
+                                            index))
+          return true;
+      }
     }
   }
 #endif
