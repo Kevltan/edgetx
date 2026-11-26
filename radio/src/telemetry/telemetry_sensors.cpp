@@ -547,7 +547,7 @@ static bool isTelemetrySensorReferenced(uint8_t index)
   }
 #endif
 
-#if MAX_SCRIPTS > 0
+#if defined(LUA) && MAX_SCRIPTS > 0
   // Model Lua script inputs can also hold telemetry source references.
   // The source/value input is a union. Use script metadata when available;
   // if it has not been loaded yet, conservatively protect matching values.
