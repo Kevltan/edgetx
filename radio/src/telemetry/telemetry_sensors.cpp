@@ -547,6 +547,17 @@ static bool isTelemetrySensorReferenced(uint8_t index)
   }
 #endif
 
+#if defined(LUA_MODEL_SCRIPTS)
+  // Model Lua script inputs can also hold telemetry source references.
+  for (int i = 0; i < MAX_SCRIPTS; i++) {
+    for (int j = 0; j < MAX_SCRIPT_INPUTS; j++) {
+      if (telemetrySourceReferencesSensor(g_model.scriptsData[i].inputs[j].source,
+                                          index))
+        return true;
+    }
+  }
+#endif
+
   for (int i = 0; i < MAX_MIXERS; i++) {
     if (telemetrySourceReferencesSensor(g_model.mixData[i].srcRaw, index) ||
         telemetrySwitchReferencesSensor(g_model.mixData[i].swtch, index))
