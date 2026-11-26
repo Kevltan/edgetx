@@ -814,7 +814,10 @@ void ModelTelemetryPage::buildSensorList(int8_t focusSensorIndex)
           }
         });
         menu->addLine(STR_DELETE, [=]() {
-          delTelemetryIndex(idx);  // calls setDirty internally
+          if (!delTelemetryIndex(idx)) {
+            POPUP_WARNING("Sensor is used by model settings");
+            return;
+          }
           for (uint8_t i = idx + 1; i < MAX_TELEMETRY_SENSORS; i += 1) {
             if (g_model.telemetrySensors[i].isAvailable()) {
               buildSensorList(i);
@@ -909,9 +912,13 @@ void ModelTelemetryPage::build(Window* window)
       new TextButton(line, rect_t{}, STR_DELETE_ALL_SENSORS, [=]() -> uint8_t {
         new ConfirmDialog(STR_DELETE_ALL_SENSORS, STR_CONFIRMDELETE,
                           [=]() {
+                            bool blocked = false;
                             for (int i = 0; i < MAX_TELEMETRY_SENSORS; i++) {
-                              delTelemetryIndex(i);
+                              if (!delTelemetryIndex(i))
+                                blocked = true;
                             }
+                            if (blocked)
+                              POPUP_WARNING("Some sensors are still used by model settings");
                           });
         return 0;
       });
