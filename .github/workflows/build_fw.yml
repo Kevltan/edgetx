@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - 'main'
+      - 'fix/telemetry-logical-switch-protection'
       - '[0-9]+.[0-9]+'
     tags:
       - v*
