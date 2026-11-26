@@ -184,7 +184,7 @@ void menuModelLogicalSwitchOne(event_t event)
           else
           {
             LcdFlags lf = attr | LEFT;
-            if (validateLSV2Range(cs, v2_min, v2_max, &lf)) storageDirty(EE_MODEL);
+            validateLSV2Range(cs, v2_min, v2_max, &lf, false);
             drawSourceCustomValue(CSWONE_2ND_COLUMN, y, cs->v1, (abs(cs->v1) <= MIXSRC_LAST_CH ? calc100toRESX(cs->v2) : cs->v2), lf);
           }
         }
