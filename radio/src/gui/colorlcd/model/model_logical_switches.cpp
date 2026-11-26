@@ -194,7 +194,7 @@ class LogicalSwitchEditPage : public Page
         break;
       default:
         int16_t v2_min = 0, v2_max = 0;
-        if (validateLSV2Range(cs, v2_min, v2_max, nullptr)) SET_DIRTY();
+        validateLSV2Range(cs, v2_min, v2_max, nullptr, false);
         v2Edit = new NumberEdit(line, rect_t{}, v2_min, v2_max,
                                 GET_SET_DEFAULT(cs->v2));
 
