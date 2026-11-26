@@ -13,6 +13,7 @@ on:
       - 'widget-focus-with-popup-selection-window'
       - 'widget-mode-bottom-right-popup'
       - 'options-widget-mode-popup-selection-focus/normal'
+      - 'fix/telemetry-logical-switch-protection-v2'
     tags:
       - v*
     paths: &trigger-paths
