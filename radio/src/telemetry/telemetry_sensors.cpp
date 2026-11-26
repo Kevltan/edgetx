@@ -473,18 +473,235 @@ void TelemetryItem::eval(const TelemetrySensor & sensor)
   }
 }
 
-void delTelemetryIndex(uint8_t index)
+static bool isTelemetrySensorReferenced(uint8_t index);
+
+bool delTelemetryIndex(uint8_t index)
 {
+  // Do not delete a sensor while the model still refers to its slot.
+  // Keeping the sensor definition allows rediscovery to update that same
+  // slot instead of assigning a different sensor to an existing reference.
+  if (isTelemetrySensorReferenced(index))
+    return false;
+
   memclear(&g_model.telemetrySensors[index], sizeof(TelemetrySensor));
   telemetryItems[index].clear();
   storageDirty(EE_MODEL);
+  return true;
+}
+
+static bool telemetrySourceReferencesSensor(int32_t source, uint8_t index)
+{
+  const int32_t value = abs(source);
+  const int32_t first = MIXSRC_FIRST_TELEM + 3 * index;
+  return value >= first && value <= first + 2;
+}
+
+static bool telemetrySwitchReferencesSensor(int32_t swtch, uint8_t index)
+{
+  return abs(swtch) == SWSRC_FIRST_SENSOR + index;
+}
+
+static bool telemetrySensorIndexReferencesSensor(int32_t source, uint8_t index)
+{
+  return source != 0 && abs(source) == index + 1;
+}
+
+// A deleted sensor slot must not be reused while the model still contains
+// references to it. Otherwise automatic discovery can silently change the
+// meaning of logical switches and other model settings without editing them.
+#if defined(COLORLCD)
+static bool widgetDataReferencesSensor(WidgetPersistentData & widgetData,
+                                        uint8_t index)
+{
+  for (unsigned int option = 0; option < widgetData.options.size(); option++) {
+    if (widgetData.getType(option) == WOV_Source &&
+        telemetrySourceReferencesSensor(widgetData.getUnsignedValue(option), index))
+      return true;
+  }
+  return false;
+}
+#endif
+
+static bool isTelemetrySensorReferenced(uint8_t index)
+{
+#if defined(COLORLCD)
+  for (int screen = 0; screen < MAX_CUSTOM_SCREENS; screen++) {
+    if (!g_model.hasScreenData(screen))
+      continue;
+
+    CustomScreenData * screenData = g_model.getScreenData(screen);
+    for (int zone = 0; zone < MAX_LAYOUT_ZONES; zone++) {
+      WidgetPersistentData * widgetData = screenData->layoutData.getWidgetData(zone);
+      if (widgetData && widgetDataReferencesSensor(*widgetData, index))
+        return true;
+    }
+  }
+
+  TopBarPersistentData * topbarData = g_model.getTopbarData();
+  if (topbarData) {
+    for (int zone = 0; zone < MAX_TOPBAR_ZONES; zone++) {
+      WidgetPersistentData * widgetData = topbarData->getWidgetData(zone);
+      if (widgetData && widgetDataReferencesSensor(*widgetData, index))
+        return true;
+    }
+  }
+#endif
+
+  for (int i = 0; i < MAX_MIXERS; i++) {
+    if (telemetrySourceReferencesSensor(g_model.mixData[i].srcRaw, index) ||
+        telemetrySwitchReferencesSensor(g_model.mixData[i].swtch, index))
+      return true;
+  }
+
+  for (int i = 0; i < MAX_EXPOS; i++) {
+    if (telemetrySourceReferencesSensor(g_model.expoData[i].srcRaw, index) ||
+        telemetrySwitchReferencesSensor(g_model.expoData[i].swtch, index))
+      return true;
+  }
+
+  for (int i = 0; i < MAX_LOGICAL_SWITCHES; i++) {
+    const LogicalSwitchData & ls = g_model.logicalSw[i];
+    const uint8_t family = lswFamily(ls.func);
+
+    if (telemetrySwitchReferencesSensor(ls.andsw, index))
+      return true;
+
+    if ((family == LS_FAMILY_OFS || family == LS_FAMILY_DIFF ||
+         family == LS_FAMILY_COMP) &&
+        telemetrySourceReferencesSensor(ls.v1, index))
+      return true;
+
+    if (family == LS_FAMILY_COMP &&
+        telemetrySourceReferencesSensor(ls.v2, index))
+      return true;
+
+    if (family == LS_FAMILY_BOOL || family == LS_FAMILY_STICKY) {
+      if (telemetrySwitchReferencesSensor(ls.v1, index) ||
+          telemetrySwitchReferencesSensor(ls.v2, index))
+        return true;
+    }
+    else if (family == LS_FAMILY_EDGE &&
+             telemetrySwitchReferencesSensor(ls.v1, index)) {
+      return true;
+    }
+  }
+
+  for (int i = 0; i < MAX_TIMERS; i++) {
+    if (telemetrySwitchReferencesSensor(g_model.timers[i].swtch, index))
+      return true;
+  }
+
+  for (int i = 1; i < MAX_FLIGHT_MODES; i++) {
+    if (telemetrySwitchReferencesSensor(g_model.flightModeData[i].swtch, index))
+      return true;
+  }
+
+  for (int i = 0; i < MAX_SPECIAL_FUNCTIONS; i++) {
+    const CustomFunctionData & cfn = g_model.customFn[i];
+    if (telemetrySwitchReferencesSensor(cfn.swtch, index))
+      return true;
+
+    if ((CFN_FUNC(&cfn) == FUNC_VOLUME ||
+         CFN_FUNC(&cfn) == FUNC_BACKLIGHT ||
+         CFN_FUNC(&cfn) == FUNC_PLAY_VALUE) &&
+        telemetrySourceReferencesSensor(CFN_PARAM(&cfn), index))
+      return true;
+
+    if (CFN_FUNC(&cfn) == FUNC_RESET &&
+        CFN_PARAM(&cfn) >= FUNC_RESET_PARAM_FIRST_TELEM &&
+        CFN_PARAM(&cfn) < FUNC_RESET_PARAM_FIRST_TELEM + MAX_TELEMETRY_SENSORS &&
+        CFN_PARAM(&cfn) - FUNC_RESET_PARAM_FIRST_TELEM == index)
+      return true;
+
+#if defined(GVARS)
+    if (CFN_FUNC(&cfn) == FUNC_ADJUST_GVAR &&
+        (CFN_GVAR_MODE(&cfn) == FUNC_ADJUST_GVAR_SOURCE ||
+         CFN_GVAR_MODE(&cfn) == FUNC_ADJUST_GVAR_SOURCERAW) &&
+        telemetrySourceReferencesSensor(CFN_PARAM(&cfn), index))
+      return true;
+#endif
+  }
+
+  if (telemetrySourceReferencesSensor(g_model.swashR.collectiveSource, index) ||
+      telemetrySourceReferencesSensor(g_model.swashR.aileronSource, index) ||
+      telemetrySourceReferencesSensor(g_model.swashR.elevatorSource, index))
+    return true;
+
+  if (telemetrySensorIndexReferencesSensor(g_model.varioData.source, index) ||
+      telemetrySensorIndexReferencesSensor(g_model.rssiSource, index))
+    return true;
+
+#if defined(PCBX9D) || defined(PCBX9DP) || defined(PCBX9E)
+  if (telemetrySensorIndexReferencesSensor(g_model.voltsSource, index) ||
+      telemetrySensorIndexReferencesSensor(g_model.altitudeSource, index))
+    return true;
+#endif
+
+  // Calculated sensors can depend on other telemetry sensor slots.
+  for (int i = 0; i < MAX_TELEMETRY_SENSORS; i++) {
+    if (i == index)
+      continue;
+
+    const TelemetrySensor & sensor = g_model.telemetrySensors[i];
+    if (!sensor.isAvailable() || sensor.type != TELEM_TYPE_CALCULATED)
+      continue;
+
+    switch (sensor.formula) {
+      case TELEM_FORMULA_CELL:
+        if (telemetrySensorIndexReferencesSensor(sensor.cell.source, index))
+          return true;
+        break;
+
+      case TELEM_FORMULA_TOTALIZE:
+      case TELEM_FORMULA_CONSUMPTION:
+        if (telemetrySensorIndexReferencesSensor(sensor.consumption.source, index))
+          return true;
+        break;
+
+      case TELEM_FORMULA_DIST:
+        if (telemetrySensorIndexReferencesSensor(sensor.dist.gps, index) ||
+            telemetrySensorIndexReferencesSensor(sensor.dist.alt, index))
+          return true;
+        break;
+
+      case TELEM_FORMULA_ADD:
+      case TELEM_FORMULA_AVERAGE:
+      case TELEM_FORMULA_MIN:
+      case TELEM_FORMULA_MAX:
+      case TELEM_FORMULA_MULTIPLY:
+        for (int j = 0; j < 4; j++) {
+          if (telemetrySensorIndexReferencesSensor(sensor.calc.sources[j], index))
+            return true;
+        }
+        break;
+
+      default:
+        break;
+    }
+  }
+
+#if !defined(COLORLCD)
+  for (int i = 0; i < MAX_TELEMETRY_SCREENS; i++) {
+    for (int j = 0; j < 4; j++) {
+      if (telemetrySourceReferencesSensor(g_model.screens[i].bars[j].source, index))
+        return true;
+      for (int k = 0; k < NUM_LINE_ITEMS; k++) {
+        if (telemetrySourceReferencesSensor(g_model.screens[i].lines[j].sources[k], index))
+          return true;
+      }
+    }
+  }
+#endif
+
+  return false;
 }
 
 int availableTelemetryIndex()
 {
-  for (int index=0; index<MAX_TELEMETRY_SENSORS; index++) {
+  for (int index = 0; index < MAX_TELEMETRY_SENSORS; index++) {
     TelemetrySensor & telemetrySensor = g_model.telemetrySensors[index];
-    if (!telemetrySensor.isAvailable()) {
+    if (!telemetrySensor.isAvailable() &&
+        !isTelemetrySensorReferenced(index)) {
       return index;
     }
   }
